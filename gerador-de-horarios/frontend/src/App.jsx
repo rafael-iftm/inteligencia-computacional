@@ -1,0 +1,87 @@
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import './App.css';
+
+function App() {
+  const [populacao, setPopulacao] = useState([]);
+  const [indiceIndividuo, setIndiceIndividuo] = useState(0);
+
+  useEffect(() => {
+    axios.get('http://localhost:3001/api/populacao')
+      .then((res) => setPopulacao(res.data.populacao))
+      .catch((err) => console.error(err));
+  }, []);
+
+  const individuoAtual = populacao[indiceIndividuo];
+  const periodos = ['1º', '2º', '3º', '4º', '5º'];
+  const dias = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
+  const horarios = [1, 2, 3, 4];
+
+  return (
+    <div style={{ padding: '1rem' }}>
+      <h1>Gerador de Horários</h1>
+
+      {populacao.length > 0 && (
+        <>
+          <div style={{ marginBottom: '1rem' }}>
+            <button
+              disabled={indiceIndividuo === 0}
+              onClick={() => setIndiceIndividuo(indiceIndividuo - 1)}
+            >
+              ← Anterior
+            </button>
+
+            <span style={{ margin: '0 1rem' }}>
+              Grade Horária {indiceIndividuo + 1} de {populacao.length}
+            </span>
+
+            <button
+              disabled={indiceIndividuo === populacao.length - 1}
+              onClick={() => setIndiceIndividuo(indiceIndividuo + 1)}
+            >
+              Próximo →
+            </button>
+          </div>
+
+          {periodos.map((periodo) => (
+            <div key={periodo} style={{ marginBottom: '2rem' }}>
+              <h2>Período {periodo}</h2>
+              <table border="1" cellPadding={6} style={{ borderCollapse: 'collapse', width: '100%' }}>
+                <thead>
+                  <tr>
+                    <th>Horário</th>
+                    {dias.map((dia) => (
+                      <th key={dia}>{dia}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {horarios.map((_, index) => (
+                    <tr key={index}>
+                      <td><strong>{index + 1}º Horário</strong></td>
+                      {dias.map((dia) => {
+                        const celula = individuoAtual[periodo][dia][index];
+                        return (
+                          <td key={dia + index}>
+                            <div><strong>{celula?.disciplina}</strong></div>
+                            <div style={{ fontSize: '0.85em', color: '#666' }}>{celula?.professor}</div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </>
+      )}
+
+      {populacao.length === 0 && (
+        <p>Carregando população inicial...</p>
+      )}
+    </div>
+  );
+}
+
+export default App;

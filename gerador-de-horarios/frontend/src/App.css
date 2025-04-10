@@ -1,0 +1,14 @@
+body {
+  font-family: sans-serif;
+  background-color: #f6f8fa;
+  color: #333;
+}
+
+table {
+  background: #fff;
+  box-shadow: 0 0 6px rgba(0,0,0,0.1);
+}
+
+h1, h2 {
+  color: #333;
+}

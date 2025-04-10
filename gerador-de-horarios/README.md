@@ -13,9 +13,9 @@ Criar uma aplicação web capaz de gerar automaticamente grades de horários aca
 - 4 horários por dia
 - 25 disciplinas
 - 10 professores
-- Cada disciplina ocupa 4 horas por dia
 - Cada disciplina pertence exclusivamente a um período
-- Cada professor pode ministrar no máximo uma disciplina por período.
+- Cada disciplina ocupa exatamente 4 horários por semana
+- Cada disciplina é ministrada sempre pelo mesmo professor (fixo por indivíduo)
 
 ### ✅ Solução construída
 

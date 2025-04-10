@@ -47,38 +47,54 @@ function popInicial(qtdIndividuos = 5) {
 
   for (let i = 0; i < qtdIndividuos; i++) {
     const individuo = {};
+    const disciplinaProfessorMap = {}; // disciplina.id -> professor
 
     periodos.forEach(periodo => {
-      individuo[periodo] = {};
-      const disciplinasDoPeriodo = disciplinasPorPeriodo[periodo];
+      const grade = {};
+      const disciplinas = disciplinasPorPeriodo[periodo];
+      const contagemHorarios = {};
+      const professoresDisponiveis = [...professores].sort(() => Math.random() - 0.5);
 
-      // Regra nova: manter um Set para controlar quais professores já foram usados nesse período
-      const professoresUtilizadosNoPeriodo = new Set();
+      disciplinas.forEach(d => contagemHorarios[d.id] = 0);
+      const todasCelulas = [];
 
+      // Cria estrutura da grade por dia e monta todas as posições disponíveis
       dias.forEach(dia => {
-        individuo[periodo][dia] = [];
-
-        for (let h = 0; h < horarios.length; h++) {
-          const disciplina = disciplinasDoPeriodo[Math.floor(Math.random() * disciplinasDoPeriodo.length)];
-
-          // Seleciona um professor que ainda não foi usado nesse período
-          const professoresDisponiveis = professores.filter(p => !professoresUtilizadosNoPeriodo.has(p.id));
-
-          // Se todos os professores já foram usados, reinicia o controle
-          if (professoresDisponiveis.length === 0) {
-            professoresUtilizadosNoPeriodo.clear();
-            professoresDisponiveis.push(...professores);
-          }
-
-          const professor = professoresDisponiveis[Math.floor(Math.random() * professoresDisponiveis.length)];
-          professoresUtilizadosNoPeriodo.add(professor.id);
-
-          individuo[periodo][dia].push({
-            disciplina: disciplina.nome,
-            professor: professor.nome,
-          });
+        grade[dia] = [null, null, null, null];
+        for (let h = 0; h < 4; h++) {
+          todasCelulas.push({ dia, horario: h });
         }
       });
+
+      // Embaralha as células para alocação aleatória
+      todasCelulas.sort(() => Math.random() - 0.5);
+
+      // Alocar 4 horários por disciplina, com professor fixo
+      for (const disciplina of disciplinas) {
+        let professor;
+
+        if (disciplinaProfessorMap[disciplina.id]) {
+          professor = disciplinaProfessorMap[disciplina.id];
+        } else {
+          // Atribui professor aleatório ainda não usado com outra disciplina
+          professor = professoresDisponiveis.pop();
+          disciplinaProfessorMap[disciplina.id] = professor;
+        }
+
+        let alocados = 0;
+        while (alocados < 4 && todasCelulas.length > 0) {
+          const celula = todasCelulas.pop();
+          if (grade[celula.dia][celula.horario] === null) {
+            grade[celula.dia][celula.horario] = {
+              disciplina: disciplina.nome,
+              professor: professor.nome
+            };
+            alocados++;
+          }
+        }
+      }
+
+      individuo[periodo] = grade;
     });
 
     populacao.push(individuo);
@@ -86,7 +102,6 @@ function popInicial(qtdIndividuos = 5) {
 
   return populacao;
 }
-
 // Etapa 3: Rota da API
 app.get('/api/populacao', (req, res) => {
   const populacao = popInicial();

@@ -20,6 +20,11 @@ function App() {
   return (
     <div style={{ padding: '1rem' }}>
       <h1>Gerador de Horários</h1>
+      {individuoAtual && (
+        <p style={{ color: '#d32f2f', fontWeight: 'bold', marginBottom: '1rem' }}>
+          🔴 Conflitos detectados: {individuoAtual._conflitos?.length || 0}
+        </p>
+      )}
 
       {populacao.length > 0 && (
         <>

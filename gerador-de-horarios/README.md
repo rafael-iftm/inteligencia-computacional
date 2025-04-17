@@ -16,6 +16,7 @@ Criar uma aplicação web capaz de gerar automaticamente grades de horários aca
 - Cada disciplina pertence exclusivamente a um período
 - Cada disciplina ocupa exatamente 4 horários por semana
 - Cada disciplina é ministrada sempre pelo mesmo professor (fixo por indivíduo)
+- Um professor não pode estar em dois lugares ao mesmo tempo (caso isso ocorra, o conflito é sinalizado de vermelho)
 
 ### ✅ Solução construída
 

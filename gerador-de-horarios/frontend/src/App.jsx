@@ -61,13 +61,29 @@ function App() {
                       <td><strong>{index + 1}º Horário</strong></td>
                       {dias.map((dia) => {
                         const celula = individuoAtual[periodo][dia][index];
+                        const conflitos = individuoAtual._conflitos?.filter(
+                          c => c.dia === dia && c.horario === index && c.professor === celula?.professor
+                        );
+                        const conflito = conflitos.length > 0;                        
+
+                        const backgroundColor = conflito ? '#f44336' : '#fff'; // vermelho mais forte
+                        const textColor = conflito ? '#fff' : '#333'; // texto branco em conflito
+
                         return (
-                          <td key={dia + index}>
+                          <td
+                            key={dia + index}
+                            style={{
+                              backgroundColor,
+                              color: textColor,
+                              transition: '0.2s all',
+                            }}
+                          >
                             <div><strong>{celula?.disciplina}</strong></div>
-                            <div style={{ fontSize: '0.85em', color: '#666' }}>{celula?.professor}</div>
+                            <div style={{ fontSize: '0.85em' }}>{celula?.professor}</div>
                           </td>
                         );
                       })}
+
                     </tr>
                   ))}
                 </tbody>

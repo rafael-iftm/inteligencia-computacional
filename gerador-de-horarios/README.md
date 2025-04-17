@@ -36,3 +36,21 @@ gerador-de-horarios/
 ├── backend/       # API Node.js com Express
 ├── frontend/      # Interface React com Vite
 ```
+
+## 🚀 Como Rodar o Projeto
+
+### 📦 Passo 1 — Clonar o projeto (se necessário)
+```bash
+git clone https://github.com/rafael-iftm/inteligencia-computacional
+cd gerador-de-horarios
+```
+
+### 📦 Passo 2 — Instalar as dependências (de backend e frontend)
+```bash
+npm install
+```
+
+### ▶️ Passo 3 — Rodar o projeto completo (backend + frontend)
+```bash
+npm start
+```

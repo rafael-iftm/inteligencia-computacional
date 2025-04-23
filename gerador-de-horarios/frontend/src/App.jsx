@@ -8,9 +8,14 @@ function App() {
 
   useEffect(() => {
     axios.get('http://localhost:3001/api/populacao')
-      .then((res) => setPopulacao(res.data.populacao))
+      .then((res) => {
+        const populacaoOrdenada = res.data.populacao.sort(
+          (a, b) => (a._conflitos?.length || 0) - (b._conflitos?.length || 0)
+        );
+        setPopulacao(populacaoOrdenada);
+      })
       .catch((err) => console.error(err));
-  }, []);
+  }, []);  
 
   const individuoAtual = populacao[indiceIndividuo];
   const periodos = ['1º', '2º', '3º', '4º', '5º'];

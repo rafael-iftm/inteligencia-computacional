@@ -1,14 +1,97 @@
+/* Estilo base do body */
 body {
-  font-family: sans-serif;
-  background-color: #f6f8fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f2f4f8;
   color: #333;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
 }
 
-table {
-  background: #fff;
-  box-shadow: 0 0 6px rgba(0,0,0,0.1);
+/* Container principal da aplicação */
+#root {
+  width: 100%;
+  max-width: 1200px;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
+/* Estilo dos títulos */
 h1, h2 {
-  color: #333;
+  color: #222;
+  margin-bottom: 1rem;
+}
+
+/* Estilização das tabelas */
+/* Estilização mais destacada para as tabelas */
+table {
+  width: 100%;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+table th {
+  padding: 0.9rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  border-bottom: 1px solid #ccc;
+  font-weight: bold;
+}
+
+/* Células normais */
+table td {
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  text-align: center;
+}
+
+/* Cabeçalho da tabela com fundo contrastante */
+table thead {
+  background-color: #b5b5b5;
+}
+
+/* Linha de cabeçalho “Horário” */
+table td:first-child,
+table th:first-child {
+  font-weight: bold;
+  border-right: 1px solid #ccc;
+  text-align: center;
+}
+
+/* Estilo dos botões */
+button {
+  border: none;
+  background-color: #0077ff;
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+button:hover {
+  background-color: #005dd1;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Mensagens */
+p {
+  font-size: 1rem;
+  margin-bottom: 1rem;
 }

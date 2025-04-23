@@ -98,7 +98,7 @@ function App() {
 
                         // Define cores com base em conflito
                         const backgroundColor = conflito ? '#f44336' : '#fff';
-                        const textColor = conflito ? '#fff' : '#333';
+                        const textColor = conflito ? '#333' : '#333';
 
                         return (
                           <td

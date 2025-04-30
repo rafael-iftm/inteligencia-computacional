@@ -1,6 +1,7 @@
 // Importa o Express e o CORS
 const express = require('express');
 const cors = require('cors');
+const { gerarNovaPopulacao } = require('./genetico');
 
 const app = express();
 const PORT = 3001;
@@ -111,8 +112,22 @@ function popInicial(qtdIndividuos = QTD_INDIVIDUOS) {
 
 // Rota da API
 app.get('/api/populacao', (req, res) => {
+  console.log('\n📥 [GET] /api/populacao - Gerando população inicial aleatória...');
   const populacao = popInicial();
+  console.log(`✅ População inicial gerada com ${populacao.length} indivíduos.`);
   res.json({ populacao });
+});
+
+// Rota que retorna nova geração cruzada
+app.get('/api/gerar', (req, res) => {
+  console.log('\n📥 [GET] /api/gerar - Gerando nova geração por cruzamento genético...');
+  const populacaoOriginal = popInicial();
+  const populacaoOrdenada = populacaoOriginal.sort(
+    (a, b) => (a._conflitos?.length || 0) - (b._conflitos?.length || 0)
+  );
+  const novaGeracao = gerarNovaPopulacao(populacaoOrdenada);
+  console.log('✅ Geração concluída e enviada ao frontend.\n');
+  res.json({ populacao: novaGeracao });
 });
 
 // Inicia o servidor

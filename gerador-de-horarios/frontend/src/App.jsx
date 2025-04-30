@@ -12,28 +12,53 @@ function App() {
   const [indiceIndividuo, setIndiceIndividuo] = useState(0);
 
   useEffect(() => {
+    console.log('📡 Requisitando população inicial...');
     axios.get('http://localhost:3001/api/populacao')
       .then((res) => {
         const populacaoOrdenada = res.data.populacao.sort(
           (a, b) => (a._conflitos?.length || 0) - (b._conflitos?.length || 0)
         );
+        console.log('✅ População inicial recebida do backend.');
         setPopulacao(populacaoOrdenada);
       })
-      .catch((err) => console.error(err));
-  }, []);
+      .catch((err) => {
+        console.error('❌ Erro ao buscar população inicial:', err);
+      });
+  }, []);  
 
   const individuoAtual = populacao[indiceIndividuo];
 
   return (
     <div style={{ padding: '1rem' }}>
       <h1>Gerador de Horários</h1>
-
+  
+      {/* Botão para gerar nova população cruzada */}
+      <div style={{ marginBottom: '1rem' }}>
+        <button onClick={() => {
+        console.log('🔁 Solicitando nova população (crossover)...');
+        axios.get('http://localhost:3001/api/gerar')
+          .then((res) => {
+            const populacaoOrdenada = res.data.populacao.sort(
+              (a, b) => (a._conflitos?.length || 0) - (b._conflitos?.length || 0)
+            );
+            console.log('✅ Nova população recebida e exibida.');
+            setPopulacao(populacaoOrdenada);
+            setIndiceIndividuo(0);
+          })
+          .catch((err) => {
+            console.error('❌ Erro ao gerar nova população:', err);
+          });
+      }}>
+        🔁 Gerar nova população (por cruzamento)
+      </button>
+      </div>
+  
       {individuoAtual && (
         <p style={{ color: '#d32f2f', fontWeight: 'bold', marginBottom: '1rem' }}>
           🔴 Conflitos detectados: {individuoAtual._conflitos?.length || 0}
         </p>
       )}
-
+  
       {populacao.length > 0 && (
         <>
           <div style={{ marginBottom: '1rem' }}>
@@ -43,11 +68,11 @@ function App() {
             >
               ← Anterior
             </button>
-
+  
             <span style={{ margin: '0 1rem' }}>
               Grade Horária {indiceIndividuo + 1} de {populacao.length}
             </span>
-
+  
             <button
               disabled={indiceIndividuo === populacao.length - 1}
               onClick={() => setIndiceIndividuo(indiceIndividuo + 1)}
@@ -55,7 +80,7 @@ function App() {
               Próximo →
             </button>
           </div>
-
+  
           {NOMES_PERIODOS.map((periodo) => (
             <div key={periodo} style={{ marginBottom: '2rem' }}>
               <h2>Período {periodo}</h2>
@@ -79,7 +104,7 @@ function App() {
                         );
                         const conflito = conflitos.length > 0;
                         const backgroundColor = conflito ? '#f44336' : '#fff';
-
+  
                         return (
                           <td
                             key={dia + index}
@@ -102,12 +127,12 @@ function App() {
           ))}
         </>
       )}
-
+  
       {populacao.length === 0 && (
         <p>Carregando população inicial...</p>
       )}
     </div>
-  );
+  );  
 }
 
 export default App;

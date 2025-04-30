@@ -5,97 +5,96 @@ const cors = require('cors');
 const app = express();
 const PORT = 3001;
 
-// Habilita CORS e JSON parsing para requisições
+// 🔢 CONSTANTES GLOBAIS
+const QTD_PERIODOS = 5;
+const QTD_DIAS_POR_SEMANA = 5;
+const QTD_HORARIOS_POR_DIA = 4;
+const QTD_DISCIPLINAS_POR_PERIODO = 5;
+const QTD_PROFESSORES = 10;
+const QTD_DISCIPLINAS = QTD_PERIODOS * QTD_DISCIPLINAS_POR_PERIODO;
+const QTD_AULAS_POR_DISCIPLINA = 4;
+const QTD_INDIVIDUOS = 5;
+
+const NOMES_PERIODOS = ['1º', '2º', '3º', '4º', '5º'];
+const NOMES_DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
+const HORARIOS = Array.from({ length: QTD_HORARIOS_POR_DIA }, (_, i) => i + 1);
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Dados base para construção da grade
-const periodos = ['1º', '2º', '3º', '4º', '5º'];
-const dias = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
-const horarios = [1, 2, 3, 4];
+// Gera disciplinas distribuídas por período
+const disciplinasPorPeriodo = Object.fromEntries(
+  NOMES_PERIODOS.map((periodo, idx) => {
+    const inicio = idx * QTD_DISCIPLINAS_POR_PERIODO + 1;
+    const disciplinas = Array.from({ length: QTD_DISCIPLINAS_POR_PERIODO }, (_, i) => ({
+      id: `D${inicio + i}`,
+      nome: `Disciplina ${inicio + i}`,
+    }));
+    return [periodo, disciplinas];
+  })
+);
 
-// Define 25 disciplinas distribuídas entre os 5 períodos
-const disciplinasPorPeriodo = {
-  '1º': Array.from({ length: 5 }, (_, i) => ({ id: `D${i + 1}`, nome: `Disciplina ${i + 1}` })),
-  '2º': Array.from({ length: 5 }, (_, i) => ({ id: `D${i + 6}`, nome: `Disciplina ${i + 6}` })),
-  '3º': Array.from({ length: 5 }, (_, i) => ({ id: `D${i + 11}`, nome: `Disciplina ${i + 11}` })),
-  '4º': Array.from({ length: 5 }, (_, i) => ({ id: `D${i + 16}`, nome: `Disciplina ${i + 16}` })),
-  '5º': Array.from({ length: 5 }, (_, i) => ({ id: `D${i + 21}`, nome: `Disciplina ${i + 21}` })),
-};
-
-// Define 10 professores
-const professores = Array.from({ length: 10 }, (_, i) => ({
+// Gera professores
+const professores = Array.from({ length: QTD_PROFESSORES }, (_, i) => ({
   id: `P${i + 1}`,
   nome: `Professor ${i + 1}`,
 }));
 
-// Função que gera uma população inicial com N indivíduos
-function popInicial(qtdIndividuos = 5) {
+// Função que gera a população inicial
+function popInicial(qtdIndividuos = QTD_INDIVIDUOS) {
   const populacao = [];
 
   for (let i = 0; i < qtdIndividuos; i++) {
     const individuo = {};
-    const disciplinaProfessorMap = {}; // Associa disciplinas a professores fixos
-    individuo._ocupacaoProfessores = {}; // Para mapear conflitos
+    const disciplinaProfessorMap = {};
+    individuo._ocupacaoProfessores = {};
     individuo._conflitos = [];
 
-    // Para cada período, gera uma grade horária
-    periodos.forEach(periodo => {
+    NOMES_PERIODOS.forEach(periodo => {
       const grade = {};
       const disciplinas = disciplinasPorPeriodo[periodo];
-      const professoresDisponiveis = [...professores].sort(() => Math.random() - 0.5); // Embaralha
+      const professoresDisponiveis = [...professores].sort(() => Math.random() - 0.5);
 
       const todasCelulas = [];
-      dias.forEach(dia => {
-        grade[dia] = [null, null, null, null];
-        for (let h = 0; h < 4; h++) {
+      NOMES_DIAS.forEach(dia => {
+        grade[dia] = Array(QTD_HORARIOS_POR_DIA).fill(null);
+        for (let h = 0; h < QTD_HORARIOS_POR_DIA; h++) {
           todasCelulas.push({ dia, horario: h });
         }
       });
 
-      todasCelulas.sort(() => Math.random() - 0.5); // Embaralha células disponíveis
+      todasCelulas.sort(() => Math.random() - 0.5);
 
       for (const disciplina of disciplinas) {
-        let professor;
+        let professor = disciplinaProfessorMap[disciplina.id] || professoresDisponiveis.pop();
+        disciplinaProfessorMap[disciplina.id] = professor;
 
-        // Define professor fixo para a disciplina
-        if (disciplinaProfessorMap[disciplina.id]) {
-          professor = disciplinaProfessorMap[disciplina.id];
-        } else {
-          professor = professoresDisponiveis.pop();
-          disciplinaProfessorMap[disciplina.id] = professor;
-        }
-
-        // Aloca a disciplina em 4 células
         let alocados = 0;
-        while (alocados < 4 && todasCelulas.length > 0) {
+        while (alocados < QTD_AULAS_POR_DISCIPLINA && todasCelulas.length > 0) {
           const celula = todasCelulas.pop();
           const chave = `${celula.dia}-${celula.horario}`;
 
-          // Inicializa controle de ocupação do professor
           if (!individuo._ocupacaoProfessores[professor.nome]) {
             individuo._ocupacaoProfessores[professor.nome] = new Set();
           }
 
           const estaOcupado = individuo._ocupacaoProfessores[professor.nome].has(chave);
 
-          // Preenche a célula com a disciplina
           grade[celula.dia][celula.horario] = {
             disciplina: disciplina.nome,
-            professor: professor.nome
+            professor: professor.nome,
           };
           alocados++;
 
           if (estaOcupado) {
-            // Registra conflito se o professor já estava alocado nesse horário
             individuo._conflitos.push({
               professor: professor.nome,
               dia: celula.dia,
               horario: celula.horario,
-              periodo
+              periodo,
             });
           } else {
-            // Marca o horário como ocupado para o professor
             individuo._ocupacaoProfessores[professor.nome].add(chave);
           }
         }
@@ -110,13 +109,13 @@ function popInicial(qtdIndividuos = 5) {
   return populacao;
 }
 
-// Rota da API que retorna a população gerada
+// Rota da API
 app.get('/api/populacao', (req, res) => {
-  const populacao = popInicial(); // Gera nova população
+  const populacao = popInicial();
   res.json({ populacao });
 });
 
-// Inicia o servidor na porta 3001
+// Inicia o servidor
 app.listen(PORT, () => {
   console.log(`🚀 Backend rodando em http://localhost:${PORT}`);
 });

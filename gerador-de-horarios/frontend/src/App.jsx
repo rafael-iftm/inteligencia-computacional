@@ -86,9 +86,11 @@ function App() {
         </p>
       )}
 
-      <p style={{ color: '#00701a', fontWeight: 'bold', marginBottom: '1rem' }}>
-        ✅ Melhor horário da geração atual tem {populacao[0]._conflitos.length} conflito(s)
-      </p>
+      {populacao.length > 0 && (
+        <p style={{ color: '#00701a', fontWeight: 'bold', marginBottom: '1rem' }}>
+            ✅ Melhor horário da geração atual tem {populacao[0]._conflitos.length} conflito(s)
+        </p>
+      )}
   
       {populacao.length > 0 && (
         <>

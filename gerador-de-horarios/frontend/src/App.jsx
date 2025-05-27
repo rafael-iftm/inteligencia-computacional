@@ -28,6 +28,33 @@ function App() {
 
   const individuoAtual = populacao[indiceIndividuo];
 
+  function mostrarDetalhes(individuo) {
+    const conflitos = individuo._conflitos || [];
+    const conflitosPorDia = {};
+    const conflitosPorProfessor = {};
+
+    conflitos.forEach(({ dia, professor }) => {
+      conflitosPorDia[dia] = (conflitosPorDia[dia] || 0) + 1;
+      conflitosPorProfessor[professor] = (conflitosPorProfessor[professor] || 0) + 1;
+    });
+
+    const maisConflituoso = Object.entries(conflitosPorProfessor).sort((a, b) => b[1] - a[1])[0];
+
+    let mensagem = `📊 Detalhes do Indivíduo\n\n`;
+    mensagem += `Total de conflitos: ${conflitos.length}\n\n`;
+
+    mensagem += `📅 Conflitos por dia:\n`;
+    Object.entries(conflitosPorDia).forEach(([dia, qtd]) => {
+      mensagem += `- ${dia}: ${qtd}\n`;
+    });
+
+    if (maisConflituoso) {
+      mensagem += `\n👨‍🏫 Professor com mais conflitos:\n- ${maisConflituoso[0]} (${maisConflituoso[1]} conflitos)\n`;
+    }
+
+    alert(mensagem);
+  }
+
   return (
     <div style={{ padding: '1rem' }}>
       <h1>Gerador de Horários</h1>
@@ -58,6 +85,10 @@ function App() {
           🔴 Conflitos detectados: {individuoAtual._conflitos?.length || 0}
         </p>
       )}
+
+      <p style={{ color: '#00701a', fontWeight: 'bold', marginBottom: '1rem' }}>
+        ✅ Melhor horário da geração atual tem {populacao[0]._conflitos.length} conflito(s)
+      </p>
   
       {populacao.length > 0 && (
         <>
@@ -72,12 +103,16 @@ function App() {
             <span style={{ margin: '0 1rem' }}>
               Grade Horária {indiceIndividuo + 1} de {populacao.length}
             </span>
-  
+
             <button
               disabled={indiceIndividuo === populacao.length - 1}
               onClick={() => setIndiceIndividuo(indiceIndividuo + 1)}
             >
               Próximo →
+            </button>
+
+            <button style={{ marginLeft: '1rem', backgroundColor: '#673ab7' }} onClick={() => mostrarDetalhes(individuoAtual)}>
+              📊 Ver detalhes do indivíduo
             </button>
           </div>
   

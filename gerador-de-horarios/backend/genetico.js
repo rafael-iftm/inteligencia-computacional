@@ -94,6 +94,8 @@ function gerarNovaPopulacao(populacaoOrdenada) {
   while (novaPopulacao.length < populacaoOrdenada.length) {
     const [pai1, pai2] = selecao(populacaoOrdenada);
     const [filho1, filho2] = cruzamento(pai1, pai2);
+    mutacao(filho1);
+    mutacao(filho2);
     avaliarIndividuo(filho1);
     avaliarIndividuo(filho2);
     novaPopulacao.push(filho1);
@@ -107,9 +109,29 @@ function gerarNovaPopulacao(populacaoOrdenada) {
   return novaPopulacao;
 }
 
+function mutacao(individuo) {
+  const periodos = Object.keys(individuo).filter(p => !p.startsWith('_'));
+  const periodoEscolhido = periodos[Math.floor(Math.random() * periodos.length)];
+  const grade = individuo[periodoEscolhido];
+  const dias = Object.keys(grade);
+
+  const dia1 = dias[Math.floor(Math.random() * dias.length)];
+  const dia2 = dias[Math.floor(Math.random() * dias.length)];
+  const horario1 = Math.floor(Math.random() * QTD_HORARIOS_POR_DIA);
+  const horario2 = Math.floor(Math.random() * QTD_HORARIOS_POR_DIA);
+
+  const temp = grade[dia1][horario1];
+  grade[dia1][horario1] = grade[dia2][horario2];
+  grade[dia2][horario2] = temp;
+
+  console.log(`🔄 Mutação aplicada no período ${periodoEscolhido} (${dia1}-${horario1} ⇄ ${dia2}-${horario2})`);
+}
+
+
 module.exports = {
   selecao,
   cruzamento,
   gerarNovaPopulacao,
+  mutacao,
   avaliarIndividuo,
 };

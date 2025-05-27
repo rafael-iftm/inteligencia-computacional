@@ -41,6 +41,9 @@ npm install
 npm start
 ```
 
+- O Frontend estará acessível em [http://localhost:5173/](http://localhost:5173/)
+- O Backend estará acessível em [http://localhost:3001](http://localhost:3001)
+
 ## 🧾 Regras de Negócio
 
 ### 🧠 Geração de População Inicial (`/api/populacao`)

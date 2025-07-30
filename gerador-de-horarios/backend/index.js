@@ -129,7 +129,6 @@ function popInicial(qtdIndividuos = QTD_INDIVIDUOS) {
   return populacao;
 }
 
-
 // Rota da API
 app.get('/api/populacao', (req, res) => {
   console.log('\n📥 [GET] /api/populacao - Gerando população inicial aleatória...');

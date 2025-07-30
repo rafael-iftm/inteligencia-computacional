@@ -42,52 +42,67 @@ const professores = Array.from({ length: QTD_PROFESSORES }, (_, i) => ({
   nome: `Professor ${i + 1}`,
 }));
 
-// Função que gera a população inicial
+// Função que gera a população inicial de indivíduos (grades horárias)
 function popInicial(qtdIndividuos = QTD_INDIVIDUOS) {
-  const populacao = [];
+  const populacao = []; // Lista onde serão armazenados todos os indivíduos
 
+  // Gera 'qtdIndividuos' indivíduos
   for (let i = 0; i < qtdIndividuos; i++) {
-    const individuo = {};
-    const disciplinaProfessorMap = {};
-    individuo._ocupacaoProfessores = {};
-    individuo._conflitos = [];
+    const individuo = {}; // Objeto que representará a grade horária de todos os períodos
+    const disciplinaProfessorMap = {}; // Mapeia cada disciplina para um professor fixo
+    individuo._ocupacaoProfessores = {}; // Guarda as alocações já feitas por professor
+    individuo._conflitos = []; // Lista de conflitos (professor com sobreposição de horário)
 
+    // Para cada período (ex: '1º', '2º', ..., '5º')
     NOMES_PERIODOS.forEach(periodo => {
-      const grade = {};
-      const disciplinas = disciplinasPorPeriodo[periodo];
+      const grade = {}; // Grade de horários desse período
+      const disciplinas = disciplinasPorPeriodo[periodo]; // Lista de 5 disciplinas do período
+
+      // Embaralha os professores disponíveis para aleatoriedade na atribuição
       const professoresDisponiveis = [...professores].sort(() => Math.random() - 0.5);
 
-      const todasCelulas = [];
+      const todasCelulas = []; // Lista com todas as posições possíveis na grade (dia x horário)
+
+      // Inicializa a grade para os 5 dias da semana, com 4 horários por dia
       NOMES_DIAS.forEach(dia => {
-        grade[dia] = Array(QTD_HORARIOS_POR_DIA).fill(null);
+        grade[dia] = Array(QTD_HORARIOS_POR_DIA).fill(null); // Ex: [null, null, null, null]
         for (let h = 0; h < QTD_HORARIOS_POR_DIA; h++) {
-          todasCelulas.push({ dia, horario: h });
+          todasCelulas.push({ dia, horario: h }); // Salva todas as combinações possíveis
         }
       });
 
+      // Embaralha a lista de células para sortear posições aleatórias
       todasCelulas.sort(() => Math.random() - 0.5);
 
+      // Para cada disciplina do período, alocar 4 horários distintos
       for (const disciplina of disciplinas) {
+        // Define o professor da disciplina (fixo por disciplina)
         let professor = disciplinaProfessorMap[disciplina.id] || professoresDisponiveis.pop();
         disciplinaProfessorMap[disciplina.id] = professor;
 
         let alocados = 0;
-        while (alocados < QTD_AULAS_POR_DISCIPLINA && todasCelulas.length > 0) {
-          const celula = todasCelulas.pop();
-          const chave = `${celula.dia}-${celula.horario}`;
 
+        // Enquanto não alocar os 4 horários da disciplina
+        while (alocados < QTD_AULAS_POR_DISCIPLINA && todasCelulas.length > 0) {
+          const celula = todasCelulas.pop(); // Pega uma célula aleatória disponível
+          const chave = `${celula.dia}-${celula.horario}`; // Ex: "Segunda-2"
+
+          // Inicializa o registro de ocupação do professor, se necessário
           if (!individuo._ocupacaoProfessores[professor.nome]) {
             individuo._ocupacaoProfessores[professor.nome] = new Set();
           }
 
+          // Verifica se o professor já está ocupado nesse horário
           const estaOcupado = individuo._ocupacaoProfessores[professor.nome].has(chave);
 
+          // Aloca a disciplina na grade
           grade[celula.dia][celula.horario] = {
             disciplina: disciplina.nome,
             professor: professor.nome,
           };
           alocados++;
 
+          // Se o professor estiver ocupado, registra um conflito
           if (estaOcupado) {
             individuo._conflitos.push({
               professor: professor.nome,
@@ -96,19 +111,24 @@ function popInicial(qtdIndividuos = QTD_INDIVIDUOS) {
               periodo,
             });
           } else {
+            // Marca a ocupação desse horário para o professor
             individuo._ocupacaoProfessores[professor.nome].add(chave);
           }
         }
       }
 
+      // Adiciona a grade horária finalizada ao indivíduo
       individuo[periodo] = grade;
     });
 
+    // Adiciona o indivíduo completo à população
     populacao.push(individuo);
   }
 
+  // Retorna a população gerada
   return populacao;
 }
+
 
 // Rota da API
 app.get('/api/populacao', (req, res) => {
